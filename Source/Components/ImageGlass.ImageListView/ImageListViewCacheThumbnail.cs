@@ -588,13 +588,7 @@ namespace ImageGlass.ImageListView
         public void Clear()
         {
             foreach (CacheItem item in thumbCache.Values)
-            {
-                if (item != null)
-                {
-                    item.Dispose();
-                }
-            }
-                
+                item.Dispose();
             thumbCache.Clear();
 
             if (rendererItem != null)

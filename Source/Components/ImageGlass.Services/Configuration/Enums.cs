@@ -142,8 +142,7 @@ namespace ImageGlass.Services.Configuration
         btnDelete = 21,
         btnAutoZoom = 22,
         // NOTE: add new items here, must match order in _lstToolbarImg.Images list
-        btnFlipHorz = 23,
-        btnFlipVert = 24,
+
 
         MAX // DO NOT ADD ANYTHING AFTER THIS
     }

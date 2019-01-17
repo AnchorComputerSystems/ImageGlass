@@ -126,11 +126,9 @@ namespace ImageGlass.Library.Image
             var tempPath = Path.Combine(Path.GetTempPath(), "imageglass.bmp");
             try
             {
-                using (var img = System.Drawing.Image.FromFile(path))
-                {
-                    // SPI_SETDESKWALLPAPER will *only* work consistently if image is a Bitmap! (Issue #327)
-                    img.Save(tempPath, System.Drawing.Imaging.ImageFormat.Bmp);
-                }
+                var img = System.Drawing.Image.FromFile(path);
+                // SPI_SETDESKWALLPAPER will *only* work consistently if image is a Bitmap! (Issue #327)
+                img.Save(tempPath, System.Drawing.Imaging.ImageFormat.Bmp);
             }
             catch
             {
@@ -160,8 +158,8 @@ namespace ImageGlass.Library.Image
                             winStyle = (string)key.GetValue("WallpaperStyle");
                             break;
                     }
-                    key.SetValue("TileWallpaper", tileVal);
-                    key.SetValue("WallpaperStyle", winStyle);
+                    key.SetValue("TileWallpaper", "0");
+                    key.SetValue("WallpaperStyle", "1");
                     key.SetValue("Wallpaper", tempPath);
                 }
                 SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, tempPath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);

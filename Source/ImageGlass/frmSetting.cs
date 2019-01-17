@@ -1,7 +1,7 @@
 ﻿/*
 ImageGlass Project - Image viewer for Windows
-Copyright (C) 2019 DUONG DIEU PHAP
-Project homepage: https://imageglass.org
+Copyright (C) 2018 DUONG DIEU PHAP
+Project homepage: http://imageglass.org
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using System;
@@ -29,8 +29,6 @@ using System.Linq;
 using ImageGlass.Theme;
 using System.Text;
 using System.Reflection;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace ImageGlass
 {
@@ -49,7 +47,7 @@ namespace ImageGlass
         private Color M_COLOR_MENU_ACTIVE = Color.FromArgb(255, 220, 220, 220);
         private Color M_COLOR_MENU_HOVER = Color.FromArgb(255, 247, 247, 247);
         private Color M_COLOR_MENU_NORMAL = Color.FromArgb(255, 240, 240, 240);
-        private List<Language> lstLanguages = new List<Language>();
+        private List<Language> dsLanguages = new List<Language>();
 
         #region Toolbar
         private string _separatorText; // Text used in lists to represent separator bar
@@ -152,7 +150,7 @@ namespace ImageGlass
 
             //Load config
             //Windows Bound (Position + Size)-------------------------------------------
-            Rectangle rc = GlobalSetting.StringToRect(GlobalSetting.GetConfig($"{this.Name}.WindowsBound", "280,125,900,700"));
+            Rectangle rc = GlobalSetting.StringToRect(GlobalSetting.GetConfig($"{Name}.WindowsBound", "280,125,900,700"));
 
             if (!Helper.IsOnScreen(rc.Location))
             {
@@ -161,7 +159,7 @@ namespace ImageGlass
             Bounds = rc;
 
             //windows state--------------------------------------------------------------
-            string s = GlobalSetting.GetConfig($"{this.Name}.WindowsState", "Normal");
+            string s = GlobalSetting.GetConfig(Name + ".WindowsState", "Normal");
             if (s == "Normal")
             {
                 WindowState = FormWindowState.Normal;
@@ -180,8 +178,7 @@ namespace ImageGlass
             //Load configs
             LoadTabGeneralConfig();
             LoadTabImageConfig();
-            LoadTabEditConfig();
-            LoadTabColorPicker();
+            lnkRefresh_LinkClicked(null, null);
 
             //to prevent the setting: ToolbarPosition = -1, we load this onLoad event
             LoadTabToolbar();
@@ -236,145 +233,140 @@ namespace ImageGlass
             var lang = GlobalSetting.LangPack.Items;
 
             RightToLeft = GlobalSetting.LangPack.IsRightToLeftLayout;
-            Text = lang[$"{Name}._Text"];
+            Text = lang["frmSetting._Text"];
 
 
             #region Tabs label
-            lblGeneral.Text = lang[$"{Name}.lblGeneral"];
-            lblImage.Text = lang[$"{Name}.lblImage"];
-            lblEdit.Text = lang[$"{Name}.lblEdit"];
-            lblFileAssociations.Text = lang[$"{Name}.lblFileAssociations"];
-            lblLanguage.Text = lang[$"{Name}.lblLanguage"];
-            lblToolbar.Text = lang[$"{Name}.lblToolbar"];
-            lblColorPicker.Text = lang[$"{Name}.lblColorPicker"];
-            lblTheme.Text = lang[$"{Name}.lblTheme"];
+            lblGeneral.Text = lang["frmSetting.lblGeneral"];
+            lblImage.Text = lang["frmSetting.lblImage"];
+            lblFileAssociations.Text = lang["frmSetting.lblFileAssociations"];
+            lblLanguage.Text = lang["frmSetting.lblLanguage"];
+            lblToolbar.Text = lang["frmSetting.lblToolbar"];
+            lblColorPicker.Text = lang["frmSetting.lblColorPicker"];
+            lblTheme.Text = lang["frmSetting.lblTheme"];
 
-            btnSave.Text = lang[$"{Name}.btnSave"];
-            btnCancel.Text = lang[$"{Name}.btnCancel"];
-            btnApply.Text = lang[$"{Name}.btnApply"];
+            btnSave.Text = lang["frmSetting.btnSave"];
+            btnCancel.Text = lang["frmSetting.btnCancel"];
+            btnApply.Text = lang["frmSetting.btnApply"];
             #endregion
 
 
             #region GENERAL TAB
-            lblHeadStartup.Text = lang[$"{Name}.lblHeadStartup"];//
-            chkWelcomePicture.Text = lang[$"{Name}.chkWelcomePicture"];
-            chkLastSeenImage.Text = lang[$"{Name}.chkLastSeenImage"];
-            chkShowToolBar.Text = lang[$"{Name}.chkShowToolBar"];
-            chkAllowMultiInstances.Text = lang[$"{Name}.chkAllowMultiInstances"];
+            lblHeadStartup.Text = lang["frmSetting.lblHeadStartup"];//
+            chkWelcomePicture.Text = lang["frmSetting.chkWelcomePicture"];
+            chkShowToolBar.Text = lang["frmSetting.chkShowToolBar"];
+            chkAllowMultiInstances.Text = lang["frmSetting.chkAllowMultiInstances"];
+
+            lblHeadPortableMode.Text = lang["frmSetting.lblHeadPortableMode"];//
+            if (GlobalSetting.IsPortableMode)
+            {
+                chkPortableMode.Text = lang["frmSetting.chkPortableMode._Enabled"];
+            }
+            else
+            {
+                chkPortableMode.Text = string.Format(lang["frmSetting.chkPortableMode._Disabled"], GlobalSetting.StartUpDir);
+                chkPortableMode.CheckAlign = ContentAlignment.TopLeft;
+            }
 
 
-            lblHeadConfigDir.Text = lang[$"{Name}.lblHeadConfigDir"];//
-            lnkConfigDir.Text = GlobalSetting.ConfigDir();
-
-
-            lblHeadOthers.Text = lang[$"{Name}.lblHeadOthers"];//
-            chkAutoUpdate.Text = lang[$"{Name}.chkAutoUpdate"];
-            chkESCToQuit.Text = lang[$"{Name}.chkESCToQuit"];
-            chkConfirmationDelete.Text = lang[$"{Name}.chkConfirmationDelete"];
-            chkShowScrollbar.Text = lang[$"{Name}.chkShowScrollbar"];
-            chkDisplayBasename.Text = lang[$"{Name}.chkDisplayBasename"];
-            chkShowNavButtons.Text = lang[$"{Name}.chkShowNavButtons"];
-            chkShowCheckerboardOnlyImage.Text = lang[$"{Name}.chkShowCheckerboardOnlyImage"];
-            lblBackGroundColor.Text = lang[$"{Name}.lblBackGroundColor"];
-            lnkResetBackgroundColor.Text = lang[$"{Name}.lnkResetBackgroundColor"];
+            lblHeadOthers.Text = lang["frmSetting.lblHeadOthers"];//
+            chkAutoUpdate.Text = lang["frmSetting.chkAutoUpdate"];
+            chkESCToQuit.Text = lang["frmSetting.chkESCToQuit"];
+            chkConfirmationDelete.Text = lang["frmSetting.chkConfirmationDelete"];
+            chkShowScrollbar.Text = lang["frmSetting.chkShowScrollbar"];
+            chkDisplayBasename.Text = lang["frmSetting.chkDisplayBasename"];
+            lblBackGroundColor.Text = lang["frmSetting.lblBackGroundColor"];
+            lnkResetBackgroundColor.Text = lang["frmSetting.lnkResetBackgroundColor"];
             #endregion
 
 
             #region IMAGE TAB
-            lblHeadImageLoading.Text = lang[$"{Name}.lblHeadImageLoading"];//
-            chkFindChildFolder.Text = lang[$"{Name}.chkFindChildFolder"];
-            chkShowHiddenImages.Text = lang[$"{Name}.chkShowHiddenImages"];
-            chkLoopViewer.Text = lang[$"{Name}.chkLoopViewer"];
-            chkImageBoosterBack.Text = lang[$"{Name}.chkImageBoosterBack"];
-            lblImageLoadingOrder.Text = lang[$"{Name}.lblImageLoadingOrder"];
+            lblHeadImageLoading.Text = lang["frmSetting.lblHeadImageLoading"];//
+            chkFindChildFolder.Text = lang["frmSetting.chkFindChildFolder"];
+            chkShowHiddenImages.Text = lang["frmSetting.chkShowHiddenImages"];
+            chkLoopViewer.Text = lang["frmSetting.chkLoopViewer"];
+            chkImageBoosterBack.Text = lang["frmSetting.chkImageBoosterBack"];
+            lblImageLoadingOrder.Text = lang["frmSetting.lblImageLoadingOrder"];
 
-            lblColorManagement.Text = lang[$"{Name}.lblColorManagement"];//
-            chkApplyColorProfile.Text = lang[$"{Name}.chkApplyColorProfile"];
-            lblColorProfile.Text = lang[$"{Name}.lblColorProfile"];
-            lnkColorProfileBrowse.Text = lang[$"{Name}.lnkColorProfileBrowse"];
-            
-            lblHeadMouseWheelActions.Text = lang[$"{Name}.lblHeadMouseWheelActions"];
-            lblMouseWheel.Text = lang[$"{Name}.lblMouseWheel"];
-            lblMouseWheelAlt.Text = lang[$"{Name}.lblMouseWheelAlt"];
-            lblMouseWheelCtrl.Text = lang[$"{Name}.lblMouseWheelCtrl"];
-            lblMouseWheelShift.Text = lang[$"{Name}.lblMouseWheelShift"];
+            lblHeadMouseWheelActions.Text = lang["frmSetting.lblHeadMouseWheelActions"];
+            lblMouseWheel.Text = lang["frmSetting.lblMouseWheel"];
+            lblMouseWheelAlt.Text = lang["frmSetting.lblMouseWheelAlt"];
+            lblMouseWheelCtrl.Text = lang["frmSetting.lblMouseWheelCtrl"];
+            lblMouseWheelShift.Text = lang["frmSetting.lblMouseWheelShift"];
 
-            lblHeadZooming.Text = lang[$"{Name}.lblHeadZooming"];//
-            lblGeneral_ZoomOptimization.Text = lang[$"{Name}.lblGeneral_ZoomOptimization"];
+            lblHeadZooming.Text = lang["frmSetting.lblHeadZooming"];//
+            //chkMouseNavigation.Text = lang["frmSetting.chkMouseNavigation"];
+            lblGeneral_ZoomOptimization.Text = lang["frmSetting.lblGeneral_ZoomOptimization"];
 
-            lblHeadThumbnailBar.Text = lang[$"{Name}.lblHeadThumbnailBar"];//
-            chkThumbnailVertical.Text = lang[$"{Name}.chkThumbnailVertical"];
-            chkShowThumbnailScrollbar.Text = lang[$"{Name}.chkShowThumbnailScrollbar"];
-            lblGeneral_ThumbnailSize.Text = lang[$"{Name}.lblGeneral_ThumbnailSize"];
+            lblHeadThumbnailBar.Text = lang["frmSetting.lblHeadThumbnailBar"];//
+            chkThumbnailVertical.Text = lang["frmSetting.chkThumbnailVertical"];
+            chkShowThumbnailScrollbar.Text = lang["frmSetting.chkShowThumbnailScrollbar"];
+            lblGeneral_ThumbnailSize.Text = lang["frmSetting.lblGeneral_ThumbnailSize"];
 
-            lblHeadSlideshow.Text = lang[$"{Name}.lblHeadSlideshow"];//
-            chkLoopSlideshow.Text = lang[$"{Name}.chkLoopSlideshow"];
-            lblSlideshowInterval.Text = string.Format(lang[$"{Name}.lblSlideshowInterval"], barInterval.Value);
-            
-            #endregion
+            lblHeadSlideshow.Text = lang["frmSetting.lblHeadSlideshow"];//
+            chkLoopSlideshow.Text = lang["frmSetting.chkLoopSlideshow"];
+            lblSlideshowInterval.Text = string.Format(lang["frmSetting.lblSlideshowInterval"], barInterval.Value);
 
-
-            #region EDIT TAB
-            chkSaveOnRotate.Text = lang[$"{Name}.chkSaveOnRotate"];
-            chkSaveModifyDate.Text = lang[$"{Name}.chkSaveModifyDate"];
-            lblSelectAppForEdit.Text = lang[$"{Name}.lblSelectAppForEdit"];
-            btnEditEditExt.Text = lang[$"{Name}.btnEditEditExt"];
-            btnEditResetExt.Text = lang[$"{Name}.btnEditResetExt"];
-            btnEditEditAllExt.Text = lang[$"{Name}.btnEditEditAllExt"];
-            clnFileExtension.Text = lang[$"{Name}.lvImageEditing.clnFileExtension"];
-            clnAppName.Text = lang[$"{Name}.lvImageEditing.clnAppName"];
-            clnAppPath.Text = lang[$"{Name}.lvImageEditing.clnAppPath"];
-            clnAppArguments.Text = lang[$"{Name}.lvImageEditing.clnAppArguments"];
+            lblHeadImageEditing.Text = lang["frmSetting.lblHeadImageEditing"];//
+            chkSaveOnRotate.Text = lang["frmSetting.chkSaveOnRotate"];
+            chkSaveModifyDate.Text = lang["frmSetting.chkSaveModifyDate"];
+            lblSelectAppForEdit.Text = lang["frmSetting.lblSelectAppForEdit"];
+            btnEditEditExt.Text = lang["frmSetting.btnEditEditExt"];
+            btnEditResetExt.Text = lang["frmSetting.btnEditResetExt"];
+            btnEditEditAllExt.Text = lang["frmSetting.btnEditEditAllExt"];
+            clnFileExtension.Text = lang["frmSetting.lvImageEditing.clnFileExtension"];
+            clnAppName.Text = lang["frmSetting.lvImageEditing.clnAppName"];
+            clnAppPath.Text = lang["frmSetting.lvImageEditing.clnAppPath"];
+            clnAppArguments.Text = lang["frmSetting.lvImageEditing.clnAppArguments"];
             #endregion
 
 
             #region FILE ASSOCIATION TAB
             var extList = GlobalSetting.DefaultImageFormats.Split("*;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            lblExtensionsGroupDescription.Text = lang[$"{Name}.lblExtensionsGroupDescription"];
-            lblSupportedExtension.Text = String.Format(lang[$"{Name}.lblSupportedExtension"], extList.Length);
-            lnkOpenFileAssoc.Text = lang[$"{Name}.lnkOpenFileAssoc"];
-            btnAddNewExt.Text = lang[$"{Name}.btnAddNewExt"];
-            btnDeleteExt.Text = lang[$"{Name}.btnDeleteExt"];
-            btnRegisterExt.Text = lang[$"{Name}.btnRegisterExt"];
-            btnResetExt.Text = lang[$"{Name}.btnResetExt"];
+            lblExtensionsGroupDescription.Text = lang["frmSetting.lblExtensionsGroupDescription"];
+            lblSupportedExtension.Text = String.Format(lang["frmSetting.lblSupportedExtension"], extList.Length);
+            lnkOpenFileAssoc.Text = lang["frmSetting.lnkOpenFileAssoc"];
+            btnAddNewExt.Text = lang["frmSetting.btnAddNewExt"];
+            btnDeleteExt.Text = lang["frmSetting.btnDeleteExt"];
+            btnRegisterExt.Text = lang["frmSetting.btnRegisterExt"];
+            btnResetExt.Text = lang["frmSetting.btnResetExt"];
             lvExtension.Groups[(int)ImageFormatGroup.Default].Header = lang["_.ImageFormatGroup.Default"];
             lvExtension.Groups[(int)ImageFormatGroup.Optional].Header = lang["_.ImageFormatGroup.Optional"];
             #endregion
 
 
             #region LANGUAGE TAB
-            lblLanguageText.Text = lang[$"{Name}.lblLanguageText"];
-            lnkRefresh.Text = lang[$"{Name}.lnkRefresh"];
-            lblLanguageWarning.Text = string.Format(lang[$"{Name}.lblLanguageWarning"], "ImageGlass " + Application.ProductVersion);
-            lnkInstallLanguage.Text = lang[$"{Name}.lnkInstallLanguage"];
-            lnkCreateNew.Text = lang[$"{Name}.lnkCreateNew"];
-            lnkEdit.Text = lang[$"{Name}.lnkEdit"];
-            lnkGetMoreLanguage.Text = lang[$"{Name}.lnkGetMoreLanguage"];
+            lblLanguageText.Text = lang["frmSetting.lblLanguageText"];
+            lnkRefresh.Text = lang["frmSetting.lnkRefresh"];
+            lblLanguageWarning.Text = "";
+            lnkInstallLanguage.Text = lang["frmSetting.lnkInstallLanguage"];
+            lnkCreateNew.Text = lang["frmSetting.lnkCreateNew"];
+            lnkEdit.Text = lang["frmSetting.lnkEdit"];
+            lnkGetMoreLanguage.Text = lang["frmSetting.lnkGetMoreLanguage"];
             #endregion
 
 
             #region TOOLBAR TAB
-            lblToolbarPosition.Text = lang[$"{Name}.lblToolbarPosition"];
-            chkHorzCenterToolbarBtns.Text = lang[$"{Name}.chkHorzCenterToolbarBtns"];
+            lblToolbarPosition.Text = lang["frmSetting.lblToolbarPosition"];
 
-            _separatorText = lang[$"{Name}.txtSeparator"];
-            lblUsedBtns.Text = lang[$"{Name}.lblUsedBtns"];
-            lblAvailBtns.Text = lang[$"{Name}.lblAvailBtns"];
+            _separatorText = lang["frmSetting.txtSeparator"];
+            lblUsedBtns.Text = lang["frmSetting.lblUsedBtns"];
+            lblAvailBtns.Text = lang["frmSetting.lblAvailBtns"];
 
-            tip1.SetToolTip(lblToolbar, lang[$"{Name}.lblToolbarTT"]);
-            tip1.SetToolTip(btnMoveUp, lang[$"{Name}.btnMoveUpTT"]);
-            tip1.SetToolTip(btnMoveDown, lang[$"{Name}.btnMoveDownTT"]);
-            tip1.SetToolTip(btnMoveLeft, lang[$"{Name}.btnMoveLeftTT"]);
-            tip1.SetToolTip(btnMoveRight, lang[$"{Name}.btnMoveRightTT"]);
+            tip1.SetToolTip(lblToolbar, lang["frmSetting.lblToolbarTT"]);
+            tip1.SetToolTip(btnMoveUp, lang["frmSetting.btnMoveUpTT"]);
+            tip1.SetToolTip(btnMoveDown, lang["frmSetting.btnMoveDownTT"]);
+            tip1.SetToolTip(btnMoveLeft, lang["frmSetting.btnMoveLeftTT"]);
+            tip1.SetToolTip(btnMoveRight, lang["frmSetting.btnMoveRightTT"]);
             #endregion
 
 
             #region COLOR PICKER TAB
-            lblColorCodeFormat.Text = lang[$"{Name}.lblColorCodeFormat"];
-            chkColorUseRGBA.Text = lang[$"{Name}.chkColorUseRGBA"];
-            chkColorUseHEXA.Text = lang[$"{Name}.chkColorUseHEXA"];
-            chkColorUseHSLA.Text = lang[$"{Name}.chkColorUseHSLA"];
+            lblColorCodeFormat.Text = lang["frmSetting.lblColorCodeFormat"];
+            chkColorUseRGBA.Text = lang["frmSetting.chkColorUseRGBA"];
+            chkColorUseHEXA.Text = lang["frmSetting.chkColorUseHEXA"];
+            chkColorUseHSLA.Text = lang["frmSetting.chkColorUseHSLA"];
             #endregion
 
 
@@ -414,9 +406,6 @@ namespace ImageGlass
                 case "lblImage":
                     tab1.SelectedTab = tabImage;
                     break;
-                case "lblEdit":
-                    tab1.SelectedTab = tabEdit;
-                    break;
                 case "lblFileAssociations":
                     tab1.SelectedTab = tabFileAssociation;
                     break;
@@ -440,7 +429,6 @@ namespace ImageGlass
         {
             lblGeneral.Tag =
             lblImage.Tag =
-            lblEdit.Tag =
             lblFileAssociations.Tag =
             lblLanguage.Tag =
             lblToolbar.Tag =
@@ -449,7 +437,6 @@ namespace ImageGlass
 
             lblGeneral.BackColor =
             lblImage.BackColor =
-            lblEdit.BackColor = 
             lblFileAssociations.BackColor =
             lblLanguage.BackColor =
             lblToolbar.BackColor =
@@ -472,13 +459,6 @@ namespace ImageGlass
 
                 RenderTheme r = new RenderTheme();
                 r.ApplyTheme(lvImageEditing);
-            }
-            else if (tab1.SelectedTab == tabEdit)
-            {
-                lblEdit.Tag = 1;
-                lblEdit.BackColor = M_COLOR_MENU_ACTIVE;
-
-                LoadTabEditConfig();
             }
             else if (tab1.SelectedTab == tabFileAssociation)
             {
@@ -532,17 +512,14 @@ namespace ImageGlass
         /// </summary>
         private void LoadTabGeneralConfig()
         {
-            //Get value of chkLastSeenImage ----------------------------------------------------
-            chkLastSeenImage.Checked = GlobalSetting.IsOpenLastSeenImage;
-            GlobalSetting.SetConfig("LastSeenImagePath", "");
-            GlobalSetting.SetConfig("IsOpenLastSeenImage", GlobalSetting.IsOpenLastSeenImage.ToString());
-
             //Get value of chkWelcomePicture ----------------------------------------------------
             chkWelcomePicture.Checked = GlobalSetting.IsShowWelcome;
 
             //Get value of chkShowToolBar
             chkShowToolBar.Checked = GlobalSetting.IsShowToolBar;
 
+            //Get Portable mode value -----------------------------------------------------------
+            chkPortableMode.Checked = GlobalSetting.IsPortableMode;
 
             //Get value of cmbAutoUpdate --------------------------------------------------------
             string configValue = GlobalSetting.GetConfig("AutoUpdate", DateTime.Now.ToString());
@@ -570,20 +547,8 @@ namespace ImageGlass
             //Get value of IsDisplayBasenameOfImage
             chkDisplayBasename.Checked = GlobalSetting.IsDisplayBasenameOfImage;
 
-            //Get value of IsShowNavigationButtons
-            chkShowNavButtons.Checked = GlobalSetting.IsShowNavigationButtons;
-
-            //Get value of IsShowNavigationButtons
-            chkShowCheckerboardOnlyImage.Checked = GlobalSetting.IsShowCheckerboardOnlyImageRegion;
-
             //Get background color
             picBackgroundColor.BackColor = GlobalSetting.BackgroundColor;
-        }
-
-
-        private void lnkConfigDir_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start("explorer.exe", GlobalSetting.ConfigDir());
         }
 
 
@@ -600,13 +565,10 @@ namespace ImageGlass
             }
         }
 
-
         private void lnkResetBackgroundColor_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             picBackgroundColor.BackColor = LocalSetting.Theme.BackgroundColor;
         }
-        
-
         #endregion
 
 
@@ -629,7 +591,6 @@ namespace ImageGlass
             //Get value of chkImageBoosterBack
             chkImageBoosterBack.Checked = GlobalSetting.IsImageBoosterBack;
 
-
             #region Load items of cmbImageOrder
             var loadingOrderList = Enum.GetNames(typeof(ImageOrderBy));
             cmbImageOrder.Items.Clear();
@@ -640,47 +601,6 @@ namespace ImageGlass
 
             //Get value of cmbImageOrder
             cmbImageOrder.SelectedIndex = (int)GlobalSetting.ImageLoadingOrder;
-            #endregion
-
-
-            #region Color Management
-            chkApplyColorProfile.Checked = GlobalSetting.IsApplyColorProfileForAll;
-            
-            // color profile list
-            cmbColorProfile.Items.Clear();
-            cmbColorProfile.Items.Add(GlobalSetting.LangPack.Items[$"{Name}.cmbColorProfile._None"]);
-            cmbColorProfile.Items.AddRange(Core.Interpreter.GetBuiltInColorProfiles());
-            cmbColorProfile.Items.Add(GlobalSetting.LangPack.Items[$"{Name}.cmbColorProfile._CustomProfileFile"]); // always last position
-
-
-            // select the color profile
-            if (File.Exists(GlobalSetting.ColorProfile))
-            {
-                cmbColorProfile.SelectedIndex = cmbColorProfile.Items.Count - 1;
-                lnkColorProfilePath.Text = GlobalSetting.ColorProfile;
-
-                lnkColorProfileBrowse.Visible = true;
-                lnkColorProfilePath.Visible = true;
-            }
-            else
-            {
-                // first item selected default
-                cmbColorProfile.SelectedIndex = 0;
-
-                for (int i = 0; i < cmbColorProfile.Items.Count; i++)
-                {
-                    if (cmbColorProfile.Items[i].ToString() == GlobalSetting.ColorProfile)
-                    {
-                        cmbColorProfile.SelectedIndex = i;
-                        break;
-                    }
-                }
-
-                lnkColorProfilePath.Text = string.Empty;
-                lnkColorProfileBrowse.Visible = false;
-                lnkColorProfilePath.Visible = false;
-            }
-            
             #endregion
 
 
@@ -751,75 +671,22 @@ namespace ImageGlass
 
             //Get value of barInterval
             barInterval.Value = GlobalSetting.SlideShowInterval;
-            lblSlideshowInterval.Text = string.Format(GlobalSetting.LangPack.Items[$"{Name}.lblSlideshowInterval"], barInterval.Value);
-            
-        }
+            lblSlideshowInterval.Text = string.Format(GlobalSetting.LangPack.Items["frmSetting.lblSlideshowInterval"], barInterval.Value);
 
-
-        private void barInterval_Scroll(object sender, EventArgs e)
-        {
-            lblSlideshowInterval.Text = string.Format(GlobalSetting.LangPack.Items[$"{Name}.lblSlideshowInterval"], barInterval.Value);
-        }
-
-
-        private void cmbColorProfile_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // if Custom ICC/ICM profile file selected
-            if (cmbColorProfile.SelectedIndex == cmbColorProfile.Items.Count - 1)
-            {
-                // show the Browse and ICC path link
-                lnkColorProfileBrowse.Visible = true;
-                lnkColorProfilePath.Visible = true;
-            }
-            else
-            {
-                lnkColorProfileBrowse.Visible = false;
-                lnkColorProfilePath.Visible = false;
-            }
-        }
-
-
-        private void lnkColorProfileBrowse_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            OpenFileDialog o = new OpenFileDialog()
-            {
-                Filter = "Supported files|*.icc;*.icm;|All files|*.*",
-                CheckFileExists = true,
-                
-            };
-
-            if (o.ShowDialog() == DialogResult.OK)
-            {
-                lnkColorProfilePath.Text = o.FileName;
-            }
-        }
-
-
-        private void lnkColorProfilePath_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            if (File.Exists(lnkColorProfilePath.Text))
-            {
-                Process.Start("explorer.exe", "/select,\"" +
-                    lnkColorProfilePath.Text + "\"");
-            }
-        }
-
-        #endregion
-
-
-        #region TAB EDIT
-
-        /// <summary>
-        /// Get and load value of tab Edit
-        /// </summary>
-        private void LoadTabEditConfig()
-        {
             //Get value of IsSaveAfterRotating
             chkSaveOnRotate.Checked = GlobalSetting.IsSaveAfterRotating;
             chkSaveModifyDate.Checked = GlobalSetting.PreserveModifiedDate;
 
             //Load Image Editing extension list
             LoadImageEditingAssociationList();
+
+
+        }
+
+
+        private void barInterval_Scroll(object sender, EventArgs e)
+        {
+            lblSlideshowInterval.Text = string.Format(GlobalSetting.LangPack.Items["frmSetting.lblSlideshowInterval"], barInterval.Value);
         }
 
 
@@ -869,7 +736,6 @@ namespace ImageGlass
             GlobalSetting.ImageEditingAssociationList = newEditingAssocList;
         }
 
-
         private void btnEditResetExt_Click(object sender, EventArgs e)
         {
             LoadImageEditingAssociationList(true);
@@ -913,7 +779,7 @@ namespace ImageGlass
         {
             frmEditEditingAssocisation f = new frmEditEditingAssocisation()
             {
-                FileExtension = $"<{string.Format(GlobalSetting.LangPack.Items[$"{Name}._allExtensions"])}>",
+                FileExtension = $"<{string.Format(GlobalSetting.LangPack.Items["frmSetting._allExtensions"])}>",
                 TopMost = this.TopMost
             };
 
@@ -936,17 +802,16 @@ namespace ImageGlass
         {
             btnEditEditExt.Enabled = (lvImageEditing.SelectedItems.Count > 0);
         }
-
         #endregion
 
 
-        #region TAB LANGUAGES
+        #region TAB LANGUAGE
         private void lnkGetMoreLanguage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             try
             {
                 string version = Application.ProductVersion.Replace(".", "_");
-                Process.Start("https://imageglass.org/languages?utm_source=app_" + version + "&utm_medium=app_click&utm_campaign=app_languagepack");
+                Process.Start("http://www.imageglass.org/download/languagepacks?utm_source=app_" + version + "&utm_medium=app_click&utm_campaign=app_languagepack");
             }
             catch { }
         }
@@ -954,7 +819,7 @@ namespace ImageGlass
         private void lnkInstallLanguage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process p = new Process();
-            p.StartInfo.FileName = GlobalSetting.StartUpDir("igtasks.exe");
+            p.StartInfo.FileName = p.StartInfo.FileName = Path.Combine(GlobalSetting.StartUpDir, "igtasks.exe");
             p.StartInfo.Arguments = "iginstalllang";
 
             try
@@ -968,7 +833,7 @@ namespace ImageGlass
         private void lnkCreateNew_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process p = new Process();
-            p.StartInfo.FileName = GlobalSetting.StartUpDir("igtasks.exe");
+            p.StartInfo.FileName = p.StartInfo.FileName = Path.Combine(GlobalSetting.StartUpDir, "igtasks.exe");
             p.StartInfo.Arguments = "ignewlang";
 
             try
@@ -981,7 +846,7 @@ namespace ImageGlass
         private void lnkEdit_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process p = new Process();
-            p.StartInfo.FileName = GlobalSetting.StartUpDir("igtasks.exe");
+            p.StartInfo.FileName = p.StartInfo.FileName = Path.Combine(GlobalSetting.StartUpDir, "igtasks.exe");
             p.StartInfo.Arguments = "igeditlang \"" + GlobalSetting.LangPack.FileName + "\"";
 
             try
@@ -991,41 +856,38 @@ namespace ImageGlass
             catch { }
         }
 
-        private async void lnkRefresh_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void lnkRefresh_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             cmbLanguage.Items.Clear();
             cmbLanguage.Items.Add("English");
-            lstLanguages = new List<Language> {
-                new Language()
+            dsLanguages = new List<Library.Language>
+            {
+                new Library.Language()
             };
 
-            string langPath = GlobalSetting.StartUpDir(Dir.Languages);
+            string langPath = Path.Combine(GlobalSetting.StartUpDir, "Languages");
 
-            if (Directory.Exists(langPath))
+            if (!Directory.Exists(langPath))
             {
-                await Task.Run(() =>
+                Directory.CreateDirectory(langPath);
+            }
+            else
+            {
+                foreach (string f in Directory.GetFiles(langPath))
                 {
-                    foreach (string f in Directory.GetFiles(langPath))
+                    if (Path.GetExtension(f).ToLower() == ".iglang")
                     {
-                        if (Path.GetExtension(f).ToLower() == ".iglang")
+                        Language l = new Language(f);
+                        dsLanguages.Add(l);
+
+                        int iLang = cmbLanguage.Items.Add(l.LangName);
+                        string curLang = GlobalSetting.LangPack.FileName;
+
+                        //using current language pack
+                        if (f.CompareTo(curLang) == 0)
                         {
-                            Language l = new Language(f);
-                            lstLanguages.Add(l);
+                            cmbLanguage.SelectedIndex = iLang;
                         }
-                    }
-                });
-
-
-                // start from 1, the first item is already hardcoded
-                for (int i = 1; i < lstLanguages.Count; i++)
-                {
-                    int iLang = cmbLanguage.Items.Add(lstLanguages[i].LangName);
-                    string curLang = GlobalSetting.LangPack.FileName;
-
-                    //using current language pack
-                    if (lstLanguages[i].FileName.CompareTo(curLang) == 0)
-                    {
-                        cmbLanguage.SelectedIndex = iLang;
                     }
                 }
             }
@@ -1042,7 +904,7 @@ namespace ImageGlass
 
             //check compatibility
             var lang = new Language();
-            if (lang.MinVersion.CompareTo(lstLanguages[cmbLanguage.SelectedIndex].MinVersion) != 0)
+            if (lang.MinVersion.CompareTo(dsLanguages[cmbLanguage.SelectedIndex].MinVersion) != 0)
             {
                 lblLanguageWarning.Visible = true;
             }
@@ -1099,7 +961,7 @@ namespace ImageGlass
                 lvExtension.Items.Add(li);
             }
 
-            lblSupportedExtension.Text = String.Format(GlobalSetting.LangPack.Items[$"{Name}.lblSupportedExtension"], lvExtension.Items.Count);
+            lblSupportedExtension.Text = String.Format(GlobalSetting.LangPack.Items["frmSetting.lblSupportedExtension"], lvExtension.Items.Count);
 
             // Write suported image formats to settings -----------------------------------------
             // Load Default Image Formats
@@ -1126,26 +988,17 @@ namespace ImageGlass
                 LoadExtensionList();
             }
 
-            using (Process p = new Process())
+
+            // Update extensions to registry
+            Process p = new Process();
+            p.StartInfo.FileName = Path.Combine(GlobalSetting.StartUpDir, "igtasks.exe");
+            p.StartInfo.Arguments = $"regassociations {extensions}";
+
+            try
             {
-                var isError = true;
-
-                p.StartInfo.FileName = GlobalSetting.StartUpDir("igtasks.exe");
-                p.StartInfo.Arguments = $"regassociations {extensions}";
                 p.Start();
-
-                p.WaitForExit();
-                isError = p.ExitCode != 0;
-
-                if (isError)
-                {
-                    MessageBox.Show(GlobalSetting.LangPack.Items[$"{Name}._RegisterAppExtensions_Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    MessageBox.Show(GlobalSetting.LangPack.Items[$"{Name}._RegisterAppExtensions_Success"], "", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
             }
+            catch { }
         }
 
         private void lnkOpenFileAssoc_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -1265,8 +1118,7 @@ namespace ImageGlass
             }
             
             cmbToolbarPosition.SelectedIndex = (int)GlobalSetting.ToolbarPosition;
-
-            chkHorzCenterToolbarBtns.Checked = GlobalSetting.IsCenterToolbar;
+            
 
             // Apply Windows System theme to listview
             RenderTheme th = new RenderTheme();
@@ -1675,7 +1527,6 @@ namespace ImageGlass
                         break;
                 }
             }
-
             return lstToolbarButtonNames;
         }
 
@@ -1692,16 +1543,12 @@ namespace ImageGlass
             List<string> lstToolbarButtons = LoadToolbarConfig();
             Type frmMainType = typeof(frmMain);
 
-            //Update size of toolbar
-            int newToolBarItemHeight = int.Parse(Math.Floor((toolMain.Height * 0.8)).ToString());
-
-            // get correct icon height
-            var hIcon = ThemeImage.GetCorrectIconHeight();
-
             foreach (var btn in lstToolbarButtons)
             {
                 if (btn == "_sep_")
                 {
+                    var hIcon = ThemeImage.GetCorrectIconHeight();
+
                     ToolStripSeparator sep = new ToolStripSeparator
                     {
                         AutoSize = false,
@@ -1716,13 +1563,9 @@ namespace ImageGlass
                     try
                     {
                         var info = frmMainType.GetField(btn, BindingFlags.Instance | BindingFlags.NonPublic);
-                        var toolbarBtn = info.GetValue(form) as ToolStripItem;
+                        var val = info.GetValue(form);
 
-                        // update the item siE
-                        toolbarBtn.Size = new Size(newToolBarItemHeight, newToolBarItemHeight);
-
-                        // add item to toolbar
-                        toolMain.Items.Add(toolbarBtn);
+                        toolMain.Items.Add(val as ToolStripItem);
                     }
                     catch (Exception)
                     {
@@ -1815,59 +1658,41 @@ namespace ImageGlass
             }
         }
 
-        private async void RefreshThemeList()
+        private void RefreshThemeList()
         {
-            string themeFolder = GlobalSetting.ConfigDir(Dir.Themes);
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"ImageGlass\Themes\");
 
             lvTheme.Items.Clear();
-            lvTheme.Items.Add("2017 (Dark)").Tag = "default";
-            lvTheme.Enabled = false;
-            this.Cursor = Cursors.WaitCursor;
+            lvTheme.Items.Add("2017 (Dark)").Tag = "Default";
 
-            SynchronizationContext.SetSynchronizationContext(new WindowsFormsSynchronizationContext());
-
-            if (Directory.Exists(themeFolder))
+            if (Directory.Exists(dir))
             {
-                var lstThemes = new List<Theme.Theme>();
-
-                await Task.Run(() =>
+                foreach (string d in Directory.GetDirectories(dir))
                 {
-                    foreach (string d in Directory.GetDirectories(themeFolder))
-                    {
-                        string configFile = Path.Combine(d, "config.xml");
+                    string configFile = Path.Combine(d, "config.xml");
 
-                        if (File.Exists(configFile))
+                    if (File.Exists(configFile))
+                    {
+                        Theme.Theme th = new Theme.Theme();
+
+                        //invalid theme
+                        if (!th.LoadTheme(configFile))
                         {
-                            Theme.Theme th = new Theme.Theme(d);
-
-                            //invalid theme
-                            if (!th.IsThemeValid)
-                            {
-                                continue;
-                            }
-
-                            lstThemes.Add(th);
+                            continue;
                         }
+
+                        var lvi = new ListViewItem(th.Name);
+                        lvi.Tag = configFile;
+                        lvi.ImageKey = "_blank";
+
+                        if (LocalSetting.Theme.ThemeConfigFilePath == configFile)
+                        {
+                            lvi.Selected = true;
+                            lvi.Checked = true;
+                        }
+
+                        lvTheme.Items.Add(lvi);
                     }
-                });
-
-                // add themes to the listview
-                foreach (var th in lstThemes)
-                {
-                    var lvi = new ListViewItem(th.Name)
-                    {
-                        // folder name of the theme
-                        Tag = Path.GetFileName(Path.GetDirectoryName(th.ThemeConfigFilePath)), 
-                        ImageKey = "_blank"
-                    };
-
-                    if (LocalSetting.Theme.ThemeConfigFilePath == th.ThemeConfigFilePath)
-                    {
-                        lvi.Selected = true;
-                        lvi.Checked = true;
-                    }
-
-                    lvTheme.Items.Add(lvi);
                 }
 
                 //select the default theme
@@ -1878,11 +1703,9 @@ namespace ImageGlass
             }
             else
             {
-                Directory.CreateDirectory(themeFolder);
+                Directory.CreateDirectory(dir);
             }
 
-            lvTheme.Enabled = true;
-            this.Cursor = Cursors.Default;
 
             lblInstalledThemes.Text = string.Format(GlobalSetting.LangPack.Items[$"{this.Name}.lblInstalledThemes"], lvTheme.Items.Count.ToString());
         }
@@ -1900,18 +1723,21 @@ namespace ImageGlass
 
             if (lvTheme.SelectedIndices.Count > 0)
             {
+                string file = lvTheme.SelectedItems[0].Tag.ToString();
                 btnThemeSaveAs.Enabled = true;
                 btnThemeUninstall.Enabled = true;
 
-                string themeName = lvTheme.SelectedItems[0].Tag.ToString();
-                if (themeName == "default")
+                if (file == "Default")
                 {
+                    file = Path.Combine(GlobalSetting.StartUpDir, @"DefaultTheme\config.xml");
                     //btnThemeSaveAs.Enabled = false;
                     btnThemeUninstall.Enabled = false;
                 }
-                
 
-                Theme.Theme t = new Theme.Theme(GlobalSetting.ConfigDir(Dir.Themes, themeName));
+
+                string dir = Path.GetDirectoryName(file) + "\\";
+
+                Theme.Theme t = new Theme.Theme(file);
                 picPreview.BackgroundImage = t.PreviewImage.Image;
 
                 txtThemeInfo.Text = 
@@ -1952,11 +1778,11 @@ namespace ImageGlass
                 {
                     RefreshThemeList();
 
-                    MessageBox.Show(GlobalSetting.LangPack.Items[$"{Name}.btnThemeInstall._Success"], "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(GlobalSetting.LangPack.Items["frmSetting.btnThemeInstall._Success"], "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show(GlobalSetting.LangPack.Items[$"{Name}.btnThemeInstall._Error"], "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(GlobalSetting.LangPack.Items["frmSetting.btnThemeInstall._Error"], "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -1966,8 +1792,7 @@ namespace ImageGlass
         {
             if (lvTheme.SelectedItems.Count > 0)
             {
-                string themeName = lvTheme.SelectedItems[0].Tag.ToString();
-                var result = Theme.Theme.UninstallTheme(themeName);
+                var result = Theme.Theme.UninstallTheme(lvTheme.SelectedItems[0].Tag.ToString());
 
                 if (result == ThemeUninstallingResult.SUCCESS)
                 {
@@ -1975,7 +1800,7 @@ namespace ImageGlass
                 }
                 else if (result == ThemeUninstallingResult.ERROR)
                 {
-                    MessageBox.Show(GlobalSetting.LangPack.Items[$"{Name}.btnThemeUninstall._Error"], "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(GlobalSetting.LangPack.Items["frmSetting.btnThemeUninstall._Error"], "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
             }
@@ -1986,8 +1811,8 @@ namespace ImageGlass
         {
             try
             {
-                string version = Application.ProductVersion.Replace(".", "_");
-                Process.Start("https://imageglass.org/themes?utm_source=app_" + version + "&utm_medium=app_click&utm_campaign=app_download_theme");
+                string version = GlobalSetting.GetConfig("AppVersion", "1.0").Replace(".", "_");
+                Process.Start("http://www.imageglass.org/download/themes?utm_source=app_" + version + "&utm_medium=app_click&utm_campaign=app_download_theme");
             }
             catch { }
         }
@@ -2002,24 +1827,22 @@ namespace ImageGlass
 
                 if (s.ShowDialog() == DialogResult.OK)
                 {
-                    string themeName = lvTheme.SelectedItems[0].Tag.ToString();
-                    string configFilePath = GlobalSetting.ConfigDir(Dir.Themes, themeName, "config.xml");
-                    
-                    if (!File.Exists(configFilePath))
+                    var themeConfig = lvTheme.SelectedItems[0].Tag.ToString();
+                    if (!File.Exists(themeConfig))
                     {
-                        configFilePath = GlobalSetting.StartUpDir(@"DefaultTheme\config.xml");
+                        themeConfig = Path.Combine(GlobalSetting.StartUpDir, @"DefaultTheme\config.xml");
                     }
 
-                    var themeDir = Path.GetDirectoryName(configFilePath);
+                    var themeDir = Path.GetDirectoryName(themeConfig);
                     var result = Theme.Theme.PackTheme(themeDir, s.FileName);
 
                     if (result == ThemePackingResult.SUCCESS)
                     {
-                        MessageBox.Show(string.Format(GlobalSetting.LangPack.Items[$"{Name}.btnThemeSaveAs._Success"], s.FileName), "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(string.Format(GlobalSetting.LangPack.Items["frmSetting.btnThemeSaveAs._Success"], s.FileName), "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
-                        MessageBox.Show(GlobalSetting.LangPack.Items[$"{Name}.btnThemeSaveAs._Error"], "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(GlobalSetting.LangPack.Items["frmSetting.btnThemeSaveAs._Error"], "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -2028,8 +1851,7 @@ namespace ImageGlass
 
         private void btnThemeFolderOpen_Click(object sender, EventArgs e)
         {
-            string themeFolder = GlobalSetting.ConfigDir(Dir.Themes);
-            Process.Start("explorer.exe", themeFolder);
+            Process.Start("explorer.exe", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"ImageGlass\Themes\"));
         }
         
 
@@ -2037,12 +1859,9 @@ namespace ImageGlass
         {
             if (lvTheme.SelectedItems.Count > 0)
             {
-                string themeFolderName = lvTheme.SelectedItems[0].Tag.ToString();
-                string themeFolderPath = GlobalSetting.ConfigDir(Dir.Themes, themeFolderName);
+                var th = Theme.Theme.ApplyTheme(lvTheme.SelectedItems[0].Tag.ToString());
 
-                var th = Theme.Theme.ApplyTheme(themeFolderPath);
-
-                if (th.IsThemeValid)
+                if (th != null)
                 {
                     LocalSetting.Theme = th;
                     GlobalSetting.BackgroundColor = picBackgroundColor.BackColor = LocalSetting.Theme.BackgroundColor;
@@ -2051,11 +1870,11 @@ namespace ImageGlass
 
                     th = null;
 
-                    MessageBox.Show(GlobalSetting.LangPack.Items[$"{Name}.btnThemeApply._Success"], "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(GlobalSetting.LangPack.Items["frmSetting.btnThemeApply._Success"], "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show(GlobalSetting.LangPack.Items[$"{Name}.btnThemeApply._Error"], "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(GlobalSetting.LangPack.Items["frmSetting.btnThemeApply._Error"], "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }
@@ -2093,10 +1912,6 @@ namespace ImageGlass
             GlobalSetting.IsShowWelcome = chkWelcomePicture.Checked;
             GlobalSetting.SetConfig("IsShowWelcome", GlobalSetting.IsShowWelcome.ToString());
 
-            GlobalSetting.IsOpenLastSeenImage = chkLastSeenImage.Checked;
-            GlobalSetting.SetConfig("IsOpenLastSeenImage", GlobalSetting.IsOpenLastSeenImage.ToString());
-
-
             //IsShowToolBar
             GlobalSetting.IsShowToolBar = chkShowToolBar.Checked;
             GlobalSetting.SetConfig("IsShowToolbar", GlobalSetting.IsShowToolBar.ToString());
@@ -2128,23 +1943,6 @@ namespace ImageGlass
             GlobalSetting.IsDisplayBasenameOfImage = chkDisplayBasename.Checked;
             GlobalSetting.SetConfig("IsDisplayBasenameOfImage", GlobalSetting.IsDisplayBasenameOfImage.ToString());
 
-            //IsShowNavigationButtons
-            GlobalSetting.IsShowNavigationButtons = chkShowNavButtons.Checked;
-            GlobalSetting.SetConfig("IsShowNavigationButtons", GlobalSetting.IsShowNavigationButtons.ToString());
-
-
-            #region IsShowCheckerboardOnlyImageRegion: MainFormForceUpdateAction.OTHER_SETTINGS
-            //IsShowCheckerboardOnlyImageRegion
-            newBool = chkShowCheckerboardOnlyImage.Checked;
-            if (GlobalSetting.IsShowCheckerboardOnlyImageRegion != newBool)
-            {
-                GlobalSetting.IsShowCheckerboardOnlyImageRegion = newBool;
-                GlobalSetting.SetConfig("IsShowCheckerboardOnlyImageRegion", GlobalSetting.IsShowCheckerboardOnlyImageRegion.ToString());
-
-                LocalSetting.ForceUpdateActions |= MainFormForceUpdateAction.OTHER_SETTINGS;
-            }
-            #endregion
-
 
             #region IsScrollbarsVisible: MainFormForceUpdateAction.OTHER_SETTINGS
             //IsScrollbarsVisible
@@ -2165,14 +1963,14 @@ namespace ImageGlass
             if (GlobalSetting.BackgroundColor != newColor)
             {
                 GlobalSetting.BackgroundColor = picBackgroundColor.BackColor;
-                GlobalSetting.SetConfig("BackgroundColor", Theme.Theme.ConvertColorToHEX(GlobalSetting.BackgroundColor, true));
+                GlobalSetting.SetConfig("BackgroundColor", GlobalSetting.BackgroundColor.ToArgb().ToString(GlobalSetting.NumberFormat));
                 LocalSetting.ForceUpdateActions |= MainFormForceUpdateAction.OTHER_SETTINGS;
             }
             #endregion
 
 
             #endregion
-            
+
 
             #region Image tab ----------------------------------------------
 
@@ -2216,34 +2014,11 @@ namespace ImageGlass
                     LocalSetting.ForceUpdateActions |= MainFormForceUpdateAction.IMAGE_LIST;
                 }
             }
-
+            
             #endregion
+            
 
-
-            #region Color Management
-
-            // apply color profile for all
-            GlobalSetting.IsApplyColorProfileForAll = chkApplyColorProfile.Checked;
-            GlobalSetting.SetConfig("IsApplyColorProfileForAll", GlobalSetting.IsApplyColorProfileForAll.ToString());
-
-            // color profile
-            if (cmbColorProfile.SelectedIndex == cmbColorProfile.Items.Count - 1)
-            {
-                // custom color profile file
-                GlobalSetting.ColorProfile = lnkColorProfilePath.Text;
-            }
-            else
-            {
-                // built-in color profile
-                GlobalSetting.ColorProfile = cmbColorProfile.SelectedItem.ToString();
-            }
-
-            GlobalSetting.SetConfig("ColorProfile", GlobalSetting.ColorProfile);
-
-            #endregion
-
-
-            #region Mouse wheel actions
+            //Mouse wheel actions
             GlobalSetting.MouseWheelAction = (MouseWheelActions)cmbMouseWheel.SelectedIndex;
             GlobalSetting.MouseWheelCtrlAction = (MouseWheelActions)cmbMouseWheelCtrl.SelectedIndex;
             GlobalSetting.MouseWheelShiftAction = (MouseWheelActions)cmbMouseWheelShift.SelectedIndex;
@@ -2253,9 +2028,8 @@ namespace ImageGlass
             GlobalSetting.SetConfig("MouseWheelCtrlAction", ((int)GlobalSetting.MouseWheelCtrlAction).ToString());
             GlobalSetting.SetConfig("MouseWheelShiftAction", ((int)GlobalSetting.MouseWheelShiftAction).ToString());
             GlobalSetting.SetConfig("MouseWheelAltAction", ((int)GlobalSetting.MouseWheelAltAction).ToString());
-            #endregion
 
-
+            
             //ZoomOptimization
             GlobalSetting.ZoomOptimizationMethod = (ZoomOptimizationMethods)cmbZoomOptimization.SelectedIndex;
             GlobalSetting.SetConfig("ZoomOptimization", ((int)GlobalSetting.ZoomOptimizationMethod).ToString(GlobalSetting.NumberFormat));
@@ -2329,12 +2103,7 @@ namespace ImageGlass
                 LocalSetting.ForceUpdateActions |= MainFormForceUpdateAction.OTHER_SETTINGS;
             }
             #endregion
-            
 
-            #endregion
-
-
-            #region Edit tab -----------------------------------------------
 
             //IsSaveAfterRotating
             GlobalSetting.IsSaveAfterRotating = chkSaveOnRotate.Checked;
@@ -2343,6 +2112,7 @@ namespace ImageGlass
             // PreserveModifiedDate
             GlobalSetting.PreserveModifiedDate = chkSaveModifyDate.Checked;
             GlobalSetting.SetConfig("PreserveModifiedDate", GlobalSetting.PreserveModifiedDate.ToString());
+
             #endregion
 
 
@@ -2350,17 +2120,14 @@ namespace ImageGlass
 
             #region Language: MainFormForceUpdateAction.LANGUAGE
             //Language
-            if (lstLanguages.Count > 0)
+            newString = dsLanguages[cmbLanguage.SelectedIndex].FileName.ToLower();
+
+            if (GlobalSetting.LangPack.FileName.ToLower().CompareTo(newString) != 0)
             {
-                newString = lstLanguages[cmbLanguage.SelectedIndex].FileName.ToLower();
+                GlobalSetting.LangPack = dsLanguages[cmbLanguage.SelectedIndex];
+                GlobalSetting.SetConfig("Language", GlobalSetting.LangPack.FileName);
 
-                if (GlobalSetting.LangPack.FileName.ToLower().CompareTo(newString) != 0)
-                {
-                    GlobalSetting.LangPack = lstLanguages[cmbLanguage.SelectedIndex];
-                    GlobalSetting.SetConfig("Language", Path.GetFileName(GlobalSetting.LangPack.FileName));
-
-                    LocalSetting.ForceUpdateActions |= MainFormForceUpdateAction.LANGUAGE;
-                }
+                LocalSetting.ForceUpdateActions |= MainFormForceUpdateAction.LANGUAGE;
             }
             #endregion
 
@@ -2388,20 +2155,6 @@ namespace ImageGlass
 
             #endregion
 
-
-            #region HorzCenterToolbarBtns: MainFormForceUpdateAction.TOOLBAR_POSITION
-            newBool = chkHorzCenterToolbarBtns.Checked;
-
-            if (GlobalSetting.IsCenterToolbar != newBool)
-            {
-                GlobalSetting.IsCenterToolbar = newBool;
-                GlobalSetting.SetConfig("IsCenterToolbar", GlobalSetting.IsCenterToolbar.ToString());
-
-                LocalSetting.ForceUpdateActions |= MainFormForceUpdateAction.TOOLBAR_POSITION;
-            }
-            #endregion
-
-
             ApplyToolbarChanges();
             #endregion
 
@@ -2421,16 +2174,10 @@ namespace ImageGlass
         }
 
 
-
-
-
-
-
-
-
+        
 
         #endregion
 
-        
+
     }
 }

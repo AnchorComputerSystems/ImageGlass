@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+//using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace ImageGlass.Core

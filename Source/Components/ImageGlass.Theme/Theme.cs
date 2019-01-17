@@ -25,25 +25,18 @@ using System;
 using System.Threading;
 using Ionic.Zip;
 using System.Text;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Windows.Forms;
 
 namespace ImageGlass.Theme
 {
     public class Theme
     {
-        private string _themeFolderName = string.Empty;
         private string _themeConfigFilePath = string.Empty;
         private bool _isThemeValid = true;
 
 
         #region CLASS PROPERTIES
-
-        /// <summary>
-        /// Get thename of theme folder
-        /// </summary>
-        public string ThemeFolderName { get => _themeFolderName; }
-
         /// <summary>
         /// Get theme config file path (config.xml)
         /// </summary>
@@ -163,25 +156,24 @@ namespace ImageGlass.Theme
         public ThemeIconCollection ToolbarIcons { get; set; } = new ThemeIconCollection();
         #endregion
 
-
-        #region Arrow Cursors
-        public Cursor PreviousArrowCursor { get; set; }
-
-        public Cursor NextArrowCursor { get; set; }
-
-        #endregion
-
         #endregion
 
 
+        /// <summary>
+        /// Initiate empty theme onject
+        /// </summary>
+        public Theme()
+        {
+
+        }
 
         /// <summary>
         /// Initiate theme object with configuration file (Version 1.5+)
         /// </summary>
-        /// <param name="themeFolderPath">The absolute path of theme folder.</param>
-        public Theme(string themeFolderPath = "")
+        /// <param name="file"></param>
+        public Theme(string file)
         {
-            this._isThemeValid = LoadTheme(themeFolderPath);
+            this._isThemeValid = LoadTheme(file);
         }
 
 
@@ -194,21 +186,18 @@ namespace ImageGlass.Theme
         /// <param name="dir">path to folder containing theme files</param>
         /// <param name="n">XMLElement to pull theme filename attribute from</param>
         /// <param name="attribname">name of theme attribute</param>
-        /// <param name="iconHeight">optional target height/width</param>
+        /// <param name="iconHigh">optional target height/width</param>
         /// <returns></returns>
-        private ThemeImage LoadThemeImage(string dir, XmlElement n, string attribname, int iconHeight = 0)
+        private ThemeImage LoadThemeImage(string dir, XmlElement n, string attribname, int iconHigh = 0)
         {
             try
             {
-                var attrib = n.GetAttribute(attribname);
-                if (string.IsNullOrEmpty(attrib))  // KBR 20180827 avoid throwing exception
-                    return new ThemeImage("");     // KBR 20180827 code in frmMain assumes not null
-                var imgFile = Path.Combine(dir, attrib);
-                return new ThemeImage(imgFile, new Size(iconHeight, iconHeight));
+                var imgFile = Path.Combine(dir, n.GetAttribute(attribname));
+                return new ThemeImage(imgFile, iconHigh, iconHigh);
             }
             catch (Exception ex)
             {
-                return new ThemeImage("");         // KBR 20180827 code in frmMain assumes not null
+                return null;
             }
         }
 
@@ -216,23 +205,20 @@ namespace ImageGlass.Theme
         /// Read theme data from theme configuration file (Version 1.5+). 
         /// Return TRUE if successful, FALSE if the theme format is invalid
         /// </summary>
-        /// <param name="themeFolderPath">The absolute path of theme file.</param>
+        /// <param name="file"></param>
         /// <returns></returns>
-        public bool LoadTheme(string themeFolderPath)
+        public bool LoadTheme(string file)
         {
-            string configFilePath = Path.Combine(themeFolderPath, "config.xml");
-
-            if (!File.Exists(configFilePath))
+            if (!File.Exists(file))
             {
-                configFilePath = GlobalSetting.StartUpDir(@"DefaultTheme\config.xml");
+                file = Path.Combine(GlobalSetting.StartUpDir, @"DefaultTheme\config.xml");
             }
 
-            this._themeConfigFilePath = configFilePath;
-            this._themeFolderName = Path.GetFileName(themeFolderPath); // get folder name
+            this._themeConfigFilePath = file;
 
-            string dir = Path.GetDirectoryName(configFilePath);
+            string dir = Path.GetDirectoryName(file);
             XmlDocument doc = new XmlDocument();
-            doc.Load(configFilePath);
+            doc.Load(file);
 
             XmlElement root = doc.DocumentElement;
             XmlElement nType = null;
@@ -406,8 +392,6 @@ namespace ImageGlass.Theme
             ToolbarIcons.ViewNextImage = LoadThemeImage(dir, n, "next", iconHeight);
             ToolbarIcons.RotateLeft = LoadThemeImage(dir, n, "leftrotate", iconHeight);
             ToolbarIcons.RotateRight = LoadThemeImage(dir, n, "rightrotate", iconHeight);
-            ToolbarIcons.FlipHorz = LoadThemeImage(dir, n, "fliphorz", iconHeight);
-            ToolbarIcons.FlipVert = LoadThemeImage(dir, n, "flipvert", iconHeight);
             ToolbarIcons.Detele = LoadThemeImage(dir, n, "delete", iconHeight);
             ToolbarIcons.ZoomIn = LoadThemeImage(dir, n, "zoomin", iconHeight);
             ToolbarIcons.ZoomOut = LoadThemeImage(dir, n, "zoomout", iconHeight);
@@ -437,19 +421,6 @@ namespace ImageGlass.Theme
 
             #endregion
 
-            #region Arrow cursors (derived from toolbar)
-
-            var arrowHeight = DPIScaling.TransformNumber((int)Constants.TOOLBAR_ICON_HEIGHT * 3);
-            var prevImage = LoadThemeImage(dir, n, "back", arrowHeight);
-            IntPtr icon = prevImage.Image.GetHicon();
-            PreviousArrowCursor = new Cursor(icon);
-
-            var nextImage = LoadThemeImage(dir, n, "next", arrowHeight);
-            icon = nextImage.Image.GetHicon();
-            NextArrowCursor = new Cursor(icon);
-
-
-            #endregion
 
             this._isThemeValid = true;
             return this.IsThemeValid;
@@ -497,8 +468,6 @@ namespace ImageGlass.Theme
             n.SetAttribute("next", Path.GetFileName(ToolbarIcons.ViewNextImage.Filename));
             n.SetAttribute("leftrotate", Path.GetFileName(ToolbarIcons.RotateLeft.Filename));
             n.SetAttribute("rightrotate", Path.GetFileName(ToolbarIcons.RotateRight.Filename));
-            n.SetAttribute("fliphorz", Path.GetFileName(ToolbarIcons.FlipHorz.Filename));
-            n.SetAttribute("flipvert", Path.GetFileName(ToolbarIcons.FlipVert.Filename));
             n.SetAttribute("delete", Path.GetFileName(ToolbarIcons.Detele.Filename));
             n.SetAttribute("zoomin", Path.GetFileName(ToolbarIcons.ZoomIn.Filename));
             n.SetAttribute("zoomout", Path.GetFileName(ToolbarIcons.ZoomOut.Filename));
@@ -591,21 +560,21 @@ namespace ImageGlass.Theme
         /// <summary>
         /// Apply the new theme and save configs
         /// </summary>
-        /// <param name="themeFolderPath">The absolute theme folder path</param>
+        /// <param name="themeConfigPath">Full path of config.xml</param>
         /// <returns>Return Theme object if success, else NULL</returns>
-        public static Theme ApplyTheme(string themeFolderPath)
+        public static Theme ApplyTheme(string themeConfigPath)
         {
             //Save background color
             try
             {
-                Theme th = new Theme(themeFolderPath);
-                
-                if (th.IsThemeValid)
+                Theme th = new Theme();
+
+                if (th.LoadTheme(themeConfigPath))
                 {
-                    GlobalSetting.SetConfig("BackgroundColor", ConvertColorToHEX(th.BackgroundColor, true));
+                    GlobalSetting.SetConfig("BackgroundColor", th.BackgroundColor.ToArgb().ToString(GlobalSetting.NumberFormat));
 
                     //Save theme path
-                    GlobalSetting.SetConfig("Theme", Path.GetFileName(themeFolderPath)); // get theme folder name
+                    GlobalSetting.SetConfig("Theme", themeConfigPath);
 
                     return th;
                 }
@@ -628,31 +597,29 @@ namespace ImageGlass.Theme
                 return ThemeInstallingResult.ERROR;
             }
 
-            string themeFolder = GlobalSetting.ConfigDir(Dir.Themes);
-            Directory.CreateDirectory(themeFolder);
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"ImageGlass\Themes\");
+            Directory.CreateDirectory(dir);
 
-            return ExtractTheme(themePath, themeFolder);
+            return ExtractTheme(themePath, dir);
         }
 
 
         /// <summary>
         /// Uninstall ImageGlass theme pack
         /// </summary>
-        /// <param name="themeFolderName">The theme folder name</param>
+        /// <param name="themeConfigPath">Full path of config.xml</param>
         /// <returns></returns>
-        public static ThemeUninstallingResult UninstallTheme(string themeFolderName)
+        public static ThemeUninstallingResult UninstallTheme(string themeConfigPath)
         {
-            string fullConfigPath = GlobalSetting.ConfigDir(Dir.Themes, themeFolderName, "config.xml");
-
-            if (File.Exists(fullConfigPath))
+            if (File.Exists(themeConfigPath))
             {
-                string dir = Path.GetDirectoryName(fullConfigPath);
+                string dir = Path.GetDirectoryName(themeConfigPath);
 
                 try
                 {
                     Directory.Delete(dir, true);
                 }
-                catch
+                catch (Exception ex)
                 {
                     return ThemeUninstallingResult.ERROR;
                 }
@@ -669,49 +636,49 @@ namespace ImageGlass.Theme
         /// <summary>
         /// Pack the theme folder to *.igtheme file
         /// </summary>
-        /// <param name="themeFolderPath">The absolute path of theme folder</param>
-        /// <param name="outputThemeFile">Output *.igtheme file</param>
+        /// <param name="themeFolder">Theme folder</param>
+        /// <param name="themeFileOutput">Output *.igtheme file</param>
         /// <returns></returns>
-        public static ThemePackingResult PackTheme(string themeFolderPath, string outputThemeFile)
+        public static ThemePackingResult PackTheme(string themeFolder, string themeFileOutput)
         {
-            if (!Directory.Exists(themeFolderPath))
+            if (!Directory.Exists(themeFolder))
             {
                 return ThemePackingResult.ERROR;
             }
 
-            Theme th = new Theme(themeFolderPath);
+            Theme th = new Theme(Path.Combine(themeFolder, "config.xml"));
 
             //updated theme config file
-            th.SaveAsThemeConfigs(themeFolderPath);
+            th.SaveAsThemeConfigs(themeFolder);
 
             //if file exist, rename & backup
-            if (File.Exists(outputThemeFile))
+            if (File.Exists(themeFileOutput))
             {
-                File.Move(outputThemeFile, outputThemeFile + ".old");
+                File.Move(themeFileOutput, themeFileOutput + ".old");
             }
 
             try
             {
-                using (ZipFile z = new ZipFile(outputThemeFile, Encoding.UTF8))
+                using (ZipFile z = new ZipFile(themeFileOutput, Encoding.UTF8))
                 {
-                    z.AddDirectory(themeFolderPath, th.Name);
+                    z.AddDirectory(themeFolder, th.Name);
                     z.Save();
                 };
             }
             catch (Exception ex)
             {
                 //restore backup file
-                if (File.Exists(outputThemeFile + ".old"))
+                if (File.Exists(themeFileOutput + ".old"))
                 {
-                    File.Move(outputThemeFile + ".old", outputThemeFile);
+                    File.Move(themeFileOutput + ".old", themeFileOutput);
                 }
 
                 return ThemePackingResult.ERROR;
             }
 
-            if (File.Exists(outputThemeFile + ".old"))
+            if (File.Exists(themeFileOutput + ".old"))
             {
-                File.Delete(outputThemeFile + ".old");
+                File.Delete(themeFileOutput + ".old");
             }
 
             return ThemePackingResult.SUCCESS;
